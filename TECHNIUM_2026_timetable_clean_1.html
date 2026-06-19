@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TECHNIUM 2026 タイムテーブル</title>
+<style>
+  :root{
+    --bg:#ffffff; --ink:#1d1f29; --muted:#8b909e; --faint:#aab; 
+    --line:#eef0f4; --line-h:#e1e3ea; --chip:#f4f5f8; --chip-ink:#5a5f6e;
+    --accent:#6f6ff0;
+    --gutter:58px; --pxmin:1.9;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;background:var(--bg);color:var(--ink);
+    font-family:ui-sans-serif,-apple-system,"Hiragino Kaku Gothic ProN","Noto Sans JP",system-ui,sans-serif;
+    -webkit-font-smoothing:antialiased}
+  .wrap{max-width:1140px;margin:0 auto;padding:22px 20px 40px}
+
+  /* header */
+  .eyebrow{display:flex;align-items:center;gap:7px;color:var(--accent);font-size:11px;
+    font-weight:600;letter-spacing:.2em;text-transform:uppercase}
+  .eyebrow .dot{width:6px;height:6px;border-radius:50%;background:var(--accent)}
+  .brand{margin:8px 0 16px;font-size:15px;font-weight:600;letter-spacing:.04em}
+  .brand b{font-weight:700;letter-spacing:.12em}
+  .brand span{color:var(--muted);font-weight:400;margin-left:8px;font-size:12.5px}
+
+  .toggle{display:inline-flex;background:var(--chip);border-radius:11px;padding:4px;gap:2px}
+  .seg{appearance:none;border:0;background:none;cursor:pointer;font:inherit;color:var(--muted);
+    padding:9px 22px;border-radius:8px;font-size:13.5px;font-weight:600;letter-spacing:.02em;transition:.18s}
+  .seg .d{font-weight:700;letter-spacing:.08em;margin-right:8px}
+  .seg.active{background:#fff;color:var(--ink);box-shadow:0 1px 3px rgba(20,22,40,.10)}
+  .seg.active .d{color:var(--accent)}
+  .seg:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+  .gmt{color:var(--faint);font-size:11px;letter-spacing:.14em;margin:12px 0 0}
+
+  /* board */
+  .scroll{overflow-x:auto;margin-top:8px}
+  .inner{min-width:720px}
+  .vrow,.rrow,.cols{display:grid;grid-template-columns:var(--gutter) repeat(5,minmax(128px,1fr))}
+  .vrow{margin-top:8px}
+  .vcell{font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--chip-ink);
+    text-align:center;padding:9px 8px;background:var(--chip);border-radius:8px;margin:0 5px 5px}
+  .vcell.cerulean{grid-column:2/5}
+  .vcell.sakura{grid-column:5/7}
+  .rrow{margin-top:0}
+  .rcell{display:flex;align-items:center;justify-content:center;gap:6px;
+    color:var(--chip-ink);font-weight:600;font-size:11.5px;letter-spacing:.03em;padding:9px 6px}
+  .rcell .tag{width:7px;height:7px;border-radius:2px}
+  .spacer{grid-column:1/2}
+
+  .cols{position:relative;border-top:1px solid var(--line-h)}
+  .gutter{position:relative}
+  .tlabel{position:absolute;left:0;right:9px;text-align:right;color:var(--faint);font-size:10.5px;
+    transform:translateY(-50%);font-variant-numeric:tabular-nums;letter-spacing:.02em}
+  .tlabel.hour{color:var(--muted)}
+  .col{position:relative;border-left:1px solid var(--line)}
+  .col:last-child{border-right:1px solid var(--line)}
+  .col.vbound{border-left:2px solid #d3d6df}
+  .rcell.vbound{box-shadow:inset 2px 0 0 #d3d6df}
+  .hline{position:absolute;left:var(--gutter);right:0;border-top:1px solid var(--line);pointer-events:none}
+  .hline.hour{border-top-color:var(--line-h)}
+
+  .block{position:absolute;left:4px;right:4px;border-radius:7px;padding:6px 9px;overflow:hidden;
+    background:var(--c-bg);border:1px solid var(--c-bd);border-left:2.5px solid var(--c);
+    transition:box-shadow .14s ease}
+  .block:hover{box-shadow:0 6px 16px rgba(20,22,40,.10);z-index:4}
+  .block .bt{font-size:10.5px;font-weight:700;color:var(--c-tx);font-variant-numeric:tabular-nums;letter-spacing:.02em}
+  .block .bn{font-size:12px;font-weight:600;line-height:1.34;margin-top:2px;color:var(--ink);
+    display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+  .block .bs{font-size:10px;color:var(--muted);margin-top:3px;line-height:1.3;
+    display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+  .block.xs .bn{-webkit-line-clamp:2} .block.xs .bs{display:none}
+
+  /* room palette (soft) */
+  .room-main{--c:#6f6ff0;--c-bg:#eeeefe;--c-bd:#dcdcfb;--c-tx:#5454d8}
+  .room-a{--c:#22aab9;--c-bg:#e6f6f8;--c-bd:#cdebef;--c-tx:#138693}
+  .room-b{--c:#cf882c;--c-bg:#fbf2e1;--c-bd:#f1e2c6;--c-tx:#a96c16}
+  .room-pitch{--c:#2aa468;--c-bg:#e8f6ee;--c-bd:#d2ecdc;--c-tx:#1c8552}
+  .room-poster{--c:#cf5a97;--c-bg:#fbeaf2;--c-bd:#f2d6e4;--c-tx:#b03f7c}
+
+  .empty{position:absolute;left:var(--gutter);right:0;top:0;padding:22px 4px;text-align:center;
+    color:var(--faint);font-size:12.5px;letter-spacing:.03em}
+
+  .footer{display:flex;flex-wrap:wrap;align-items:center;gap:10px 16px;margin-top:16px;
+    color:var(--muted);font-size:11px}
+  .footer .lg{display:inline-flex;align-items:center;gap:6px}
+  .footer .lg i{width:9px;height:9px;border-radius:2px;display:inline-block}
+  .note{color:var(--faint);font-size:11px;margin-top:12px;line-height:1.6}
+
+  @media (prefers-reduced-motion:reduce){.block,.seg{transition:none}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="eyebrow"><span class="dot"></span>Timetable</div>
+  <div class="brand"><b>TECHNIUM</b> Global Conference 2026 <span>GMT+9 ／ @SHIBUYA</span></div>
+
+  <div class="toggle" role="tablist">
+    <button class="seg active" role="tab" data-day="1"><span class="d">DAY1</span>2026.9.2</button>
+    <button class="seg" role="tab" data-day="2"><span class="d">DAY2</span>2026.9.3</button>
+  </div>
+  <div class="gmt" id="dayrange"></div>
+
+  <div class="scroll"><div class="inner" id="inner"></div></div>
+
+  <div class="footer">
+    <span class="lg"><i style="background:#6f6ff0"></i>MAIN</span>
+    <span class="lg"><i style="background:#22aab9"></i>ROOM A</span>
+    <span class="lg"><i style="background:#cf882c"></i>ROOM B</span>
+    <span class="lg"><i style="background:#2aa468"></i>PITCH 1・2</span>
+    <span class="lg"><i style="background:#cf5a97"></i>POSTER</span>
+  </div>
+  <p class="note">セッションは予告なく変更になる場合があります。最新の全情報は EventHub をご確認ください。<br>
+  ※ 追加・編集は、このファイル内の <code>SESSIONS</code> 配列に1行足すだけです（time は "HH:MM"）。</p>
+</div>
+
+<script>
+/* ====== 編集はここだけ ====== */
+const ROOMS = ["MAIN","ROOM A","ROOM B","PITCH 1・2","POSTER"];
+const RCLASS = {"MAIN":"room-main","ROOM A":"room-a","ROOM B":"room-b","PITCH 1・2":"room-pitch","POSTER":"room-poster"};
+const DAYS = {
+  1:{date:"2026.9.2", start:"12:30", end:"19:00", label:"DAY1 ／ 2026.9.2 (Wed) 12:30–19:00"},
+  2:{date:"2026.9.3", start:"09:30", end:"19:00", label:"DAY2 ／ 2026.9.3 (Thu) 9:30–19:00"}
+};
+const SESSIONS = [
+  {day:1, room:"MAIN", start:"13:10", end:"13:45",
+   title:"日本のディープテック投資の現在地：トップティアVCが展望する2026年のトレンドと戦略領域",
+   short:"日本のディープテック投資の現在地",
+   speakers:"西村勇哉（esse-sense）／郷治友孝（東大エッジキャピタル）／沼田朋子（C1 Capital）／伊藤毅（Beyond Next Ventures）"},
+  {day:1, room:"MAIN", start:"15:00", end:"15:45",
+   title:"Why Japan, Really? Global Funds Speak Frankly / Alumni Ventures x Pangaea Ventures",
+   short:"Why Japan, Really? Global Funds Speak Frankly",
+   speakers:"三宅壮（Corundum Systems Biology）／Andrew Haughian（Pangaea Ventures）／Michael G Phillips（Alumni Ventures）"}
+];
+/* ============================ */
+
+const toMin = t => { const [h,m]=t.split(":").map(Number); return h*60+m; };
+const fmt = m => String(Math.floor(m/60)).padStart(2,"0")+":"+String(m%60).padStart(2,"0");
+const PXMIN = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--pxmin"));
+const esc = s => (s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+
+function render(day){
+  const cfg = DAYS[day], t0=toMin(cfg.start), t1=toMin(cfg.end), H=(t1-t0)*PXMIN;
+  document.getElementById("dayrange").textContent = cfg.label;
+
+  let h = '<div class="vrow"><div class="spacer"></div>'
+        + '<div class="vcell cerulean">Cerulean Tower Tokyu Hotel B2F</div>'
+        + '<div class="vcell sakura">Sakura Deeptech Shibuya</div></div>';
+  const tags={"MAIN":"#6f6ff0","ROOM A":"#22aab9","ROOM B":"#cf882c","PITCH 1・2":"#2aa468","POSTER":"#cf5a97"};
+  h += '<div class="rrow"><div class="spacer"></div>'
+     + ROOMS.map(r=>`<div class="rcell${r==="PITCH 1・2"?" vbound":""}"><span class="tag" style="background:${tags[r]}"></span>${r}</div>`).join("")
+     + '</div>';
+
+  h += `<div class="cols" style="height:${H}px"><div class="gutter">`;
+  for(let m=t0;m<=t1;m+=30){
+    const hour = m%60===0;
+    h += `<div class="tlabel ${hour?'hour':''}" style="top:${(m-t0)*PXMIN}px">${fmt(m)}</div>`;
+  }
+  h += `</div>`;
+  ROOMS.forEach(r=>{
+    const blocks = SESSIONS.filter(s=>s.day==day && s.room===r).map(s=>{
+      const top=(toMin(s.start)-t0)*PXMIN, hgt=(toMin(s.end)-toMin(s.start))*PXMIN;
+      const lines = Math.max(1, Math.floor((hgt - 28) / 16)); // title lines that fit cleanly
+      const disp = s.short || s.title;
+      const tip = `${s.start}–${s.end}  ${s.title}` + (s.speakers? "  —  "+s.speakers : "");
+      return `<div class="block ${RCLASS[r]}" style="top:${top}px;height:${hgt}px" title="${esc(tip)}">`
+        + `<div class="bt">${s.start}–${s.end}</div>`
+        + `<div class="bn" style="-webkit-line-clamp:${lines}">${esc(disp)}</div>`
+        + `</div>`;
+    }).join("");
+    h += `<div class="col${r==="PITCH 1・2"?" vbound":""}">${blocks}</div>`;
+  });
+  h += `</div>`;
+
+  const inner = document.getElementById("inner");
+  inner.innerHTML = h;
+
+  const cols = inner.querySelector(".cols");
+  for(let m=t0;m<=t1;m+=30){
+    const line=document.createElement("div");
+    line.className = "hline" + (m%60===0?" hour":"");
+    line.style.top = ((m-t0)*PXMIN)+"px";
+    cols.appendChild(line);
+  }
+  if(!SESSIONS.some(s=>s.day==day)){
+    const e=document.createElement("div");
+    e.className="empty"; e.textContent="この日のセッションは順次公開予定です";
+    cols.appendChild(e);
+  }
+}
+
+document.querySelectorAll(".seg").forEach(b=>{
+  b.addEventListener("click",()=>{
+    document.querySelectorAll(".seg").forEach(x=>x.classList.remove("active"));
+    b.classList.add("active");
+    render(b.dataset.day);
+  });
+});
+render(1);
+</script>
+</body>
+</html>
